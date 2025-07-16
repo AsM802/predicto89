@@ -10,6 +10,11 @@ const CreateMarketForm: React.FC = () => {
   const [outcomeType, setOutcomeType] = useState('YES_NO'); // Default to YES_NO
   const [outcomes, setOutcomes] = useState(['Yes', 'No']); // Default for YES_NO
   const [expiryDate, setExpiryDate] = useState('');
+  const [ancillaryData, setAncillaryData] = useState('');
+  const [rewardToken, setRewardToken] = useState('');
+  const [reward, setReward] = useState(''); // Will be converted to BigNumberish
+  const [proposalBond, setProposalBond] = useState(''); // Will be converted to BigNumberish
+  const [liveness, setLiveness] = useState(''); // Will be converted to BigNumberish
   const [message, setMessage] = useState('');
   const router = useRouter();
 
@@ -44,12 +49,27 @@ const CreateMarketForm: React.FC = () => {
         outcomes: outcomes.map(o => ({ name: o, liquidity: 0, odds: 0.5 })), // Basic structure
         expiryDate: new Date(expiryDate).toISOString(),
       };
+
+      const ctfAdapterData = {
+        ancillaryData,
+        rewardToken,
+        reward: reward, // Send as string, backend will handle BigNumberish
+        proposalBond: proposalBond, // Send as string, backend will handle BigNumberish
+        liveness: liveness, // Send as string, backend will handle BigNumberish
+      };
+
+      // First, create the market
       await api.post('/api/markets', marketData);
-      setMessage('Market created successfully!');
+      setMessage('Market created successfully! Initializing CTF Adapter...');
+
+      // Then, initialize the CTF Adapter
+      await api.post('/api/ctf-adapter/initialize', ctfAdapterData);
+
+      setMessage('Market created and CTF Adapter initialized successfully!');
       router.push('/dashboard'); // Redirect to dashboard or market list
     } catch (error: any) {
-      setMessage(error.response?.data?.message || 'Failed to create market');
-      console.error('Error creating market:', error.response?.data || error.message);
+      setMessage(error.response?.data?.message || 'Failed to create market or initialize CTF Adapter');
+      console.error('Error creating market or initializing CTF Adapter:', error.response?.data || error.message);
     }
   };
 
@@ -128,11 +148,66 @@ const CreateMarketForm: React.FC = () => {
             <button
               type="button"
               onClick={addOutcome}
-              className="mt-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="mt-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-500"
             >
               Add Outcome
             </button>
           )}
+        </div>
+        <div>
+          <label htmlFor="ancillaryData" className="block text-sm font-medium text-gray-700">Ancillary Data</label>
+          <input
+            type="text"
+            id="ancillaryData"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            value={ancillaryData}
+            onChange={(e) => setAncillaryData(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="rewardToken" className="block text-sm font-medium text-gray-700">Reward Token</label>
+          <input
+            type="text"
+            id="rewardToken"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            value={rewardToken}
+            onChange={(e) => setRewardToken(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="reward" className="block text-sm font-medium text-gray-700">Reward</label>
+          <input
+            type="number"
+            id="reward"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            value={reward}
+            onChange={(e) => setReward(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="proposalBond" className="block text-sm font-medium text-gray-700">Proposal Bond</label>
+          <input
+            type="number"
+            id="proposalBond"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            value={proposalBond}
+            onChange={(e) => setProposalBond(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="liveness" className="block text-sm font-medium text-gray-700">Liveness (seconds)</label>
+          <input
+            type="number"
+            id="liveness"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            value={liveness}
+            onChange={(e) => setLiveness(e.target.value)}
+            required
+          />
         </div>
         <div>
           <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700">Expiry Date</label>

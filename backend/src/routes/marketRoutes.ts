@@ -33,7 +33,7 @@ router.post(
   async (req: AuthRequest, res: Response) => { // Use AuthRequest and Response
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ errors: errors: errors.array() });
     }
 
     const { title, description, outcomeType, outcomes, expiryDate } = req.body;

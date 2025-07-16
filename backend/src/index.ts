@@ -32,7 +32,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/markets', marketRoutes);
-app.use('/api/adapter', ctfAdapterRoutes);
+app.use('/api/ctf-adapter', ctfAdapterRoutes);
 app.use('/api/bets', createBetRouter(io));
 
 app.get('/', (req, res) => {

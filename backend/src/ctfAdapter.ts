@@ -2,7 +2,7 @@
 import { ethers } from "ethers";
 import * as UmaCtfAdapter from "../../../uma-ctf-adapter/out/UmaCtfAdapter.sol/UmaCtfAdapter.json";
 
-const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 const privateKey = process.env.PRIVATE_KEY;
 if (!privateKey) {
     throw new Error("PRIVATE_KEY environment variable not set");
@@ -23,8 +23,15 @@ export const initializeMarket = async (marketData: {
     liveness: ethers.BigNumberish;
 }) => {
     try {
+        // Validate rewardToken as an Ethereum address
+        if (!ethers.isAddress(marketData.rewardToken)) {
+            throw new Error("Invalid rewardToken address provided.");
+        }
+
+        const encodedAncillaryData = ethers.hexlify(ethers.toUtf8Bytes(marketData.ancillaryData));
+
         const tx = await adapterContract.initialize(
-            marketData.ancillaryData,
+            encodedAncillaryData,
             marketData.rewardToken,
             marketData.reward,
             marketData.proposalBond,
@@ -32,9 +39,13 @@ export const initializeMarket = async (marketData: {
         );
         await tx.wait();
         console.log("Market initialized:", tx.hash);
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error initializing market:", error);
-        throw new Error("Failed to initialize market");
+        if (error instanceof Error) {
+            throw new Error(`Failed to initialize market: ${error.message}`);
+        } else {
+            throw new Error("Failed to initialize market: An unknown error occurred.");
+        }
     }
 };
 
@@ -43,8 +54,12 @@ export const resolveMarket = async (marketId: string) => {
         const tx = await adapterContract.resolve(marketId);
         await tx.wait();
         console.log("Market resolved:", tx.hash);
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error resolving market:", error);
-        throw new Error("Failed to resolve market");
+        if (error instanceof Error) {
+            throw new Error(`Failed to resolve market: ${error.message}`);
+        } else {
+            throw new Error("Failed to resolve market: An unknown error occurred.");
+        }
     }
 };

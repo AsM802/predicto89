@@ -1,15 +1,14 @@
+'use client';
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "../components/QueryProvider";
-import { ThirdwebAuthProvider } from "../context/AuthContext";
+import { ThirdwebProvider } from '@thirdweb-dev/react';
+import { Mumbai } from "@thirdweb-dev/chains";
+import ThirdwebWrapper from "../components/ThirdwebWrapper"; // We will create this file
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Predicto89",
-  description: "Decentralized Prediction Market Platform",
-};
 
 export default function RootLayout({
   children,
@@ -20,9 +19,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <QueryProvider>
-          <ThirdwebAuthProvider>
-            {children}
-          </ThirdwebAuthProvider>
+          <ThirdwebProvider
+            activeChain={Mumbai}
+            clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
+          >
+            <ThirdwebWrapper>
+              {children}
+            </ThirdwebWrapper>
+          </ThirdwebProvider>
         </QueryProvider>
       </body>
     </html>

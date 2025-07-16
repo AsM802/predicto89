@@ -1,8 +1,4 @@
-'use client';
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { ThirdwebProvider, useAddress, useMetamask } from '@thirdweb-dev/react';
-import { Mumbai } from "@thirdweb-dev/chains";
 
 interface User {
   // Define your user properties here
@@ -24,10 +20,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode; address: string | undefined; connect: () => Promise<any> }> = ({ children, address, connect }) => {
   const [user, setUser] = useState<User | null>(null);
-  const address = useAddress();
-  const connect = useMetamask();
 
   console.log("AuthContext: Initializing. Address:", address, "User:", user);
 
@@ -74,17 +68,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
-
-export const ThirdwebAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  return (
-    <ThirdwebProvider
-      activeChain={Mumbai}
-      clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
-    >
-      <AuthProvider>
-        {children}
-      </AuthProvider>
-    </ThirdwebProvider>
-  );
 };
