@@ -6,6 +6,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import connectDB from './config/db';
 import authRoutes from './routes/authRoutes';
 import marketRoutes from './routes/marketRoutes';
+import ctfAdapterRoutes from './routes/ctfAdapterRoutes';
 import createBetRouter from './routes/betRoutes';
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/markets', marketRoutes);
+app.use('/api/adapter', ctfAdapterRoutes);
 app.use('/api/bets', createBetRouter(io));
 
 app.get('/', (req, res) => {

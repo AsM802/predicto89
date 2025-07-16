@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Header from './Header';
 import AuthForm from './AuthForm';
+import RegisterForm from './RegisterForm';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -29,10 +30,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             >
               &times;
             </button>
-            <AuthForm
-              isLogin={showLoginModal}
-              onClose={closeModals}
-            />
+            {showLoginModal && <AuthForm onClose={closeModals} />}
+            {showRegisterModal && <RegisterForm onClose={closeModals} />}
           </div>
         </div>
       )}
