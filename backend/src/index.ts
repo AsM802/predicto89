@@ -1,12 +1,11 @@
+
 import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
 import http from 'http';
-import { Server as SocketIOServer } from 'socket.io';
+import { Server } from 'socket.io';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
 import connectDB from './config/db';
-import authRoutes from './routes/authRoutes';
-import marketRoutes from './routes/marketRoutes';
-import createBetRouter from './routes/betRoutes';
 
 dotenv.config();
 
@@ -14,45 +13,33 @@ connectDB();
 
 const app = express();
 const server = http.createServer(app);
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT'], // Added PUT for market resolution
-  },
-});
+const io = new Server(server);
+
+import authRoutes from './routes/authRoutes';
 
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/markets', marketRoutes);
-app.use('/api/bets', createBetRouter(io));
+import marketRoutes from './routes/marketRoutes';
+import betRoutes from './routes/betRoutes';
+
+app.use('/users', authRoutes);
+app.use('/markets', marketRoutes);
+app.use('/bets', betRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Predicto89 Backend API is running!');
+  res.send('Prediction market backend is running');
 });
 
 io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
-
-  socket.on('joinMarket', (marketId: string) => {
-    socket.join(marketId);
-    console.log(`User ${socket.id} joined market room ${marketId}`);
-  });
-
-  socket.on('leaveMarket', (marketId: string) => {
-    socket.leave(marketId);
-    console.log(`User ${socket.id} left market room ${marketId}`);
-  });
-
+  console.log('a user connected');
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    console.log('user disconnected');
   });
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

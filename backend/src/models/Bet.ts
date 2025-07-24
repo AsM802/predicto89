@@ -1,29 +1,10 @@
 import mongoose from 'mongoose';
 
 const betSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  marketId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Market',
-    required: true,
-  },
-  outcome: {
-    type: String, // The name of the outcome the user bet on
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now,
-  },
+  market: { type: mongoose.Schema.Types.ObjectId, ref: 'Market', required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  outcomeIndex: { type: Number, required: true },
+  amount: { type: Number, required: true },
 });
 
 const Bet = mongoose.model('Bet', betSchema);
