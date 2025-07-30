@@ -41,11 +41,31 @@ import { ethers } from 'ethers';
     enabled: !!marketId,
   });
 
-  const { contract } = useContract(market?.contractAddress, PredictionMarketABI.abi);
+  const { contract } = useContract(
+    (market?.contractAddress && typeof market.contractAddress === 'string') ? {
+      address: market.contractAddress,
+      abi: PredictionMarketABI.abi,
+    } : undefined
+  );
 
-  const { mutateAsync: placeBet, isLoading: isPlacingBet } = useContractWrite(contract, "placeBet");
-  const { mutateAsync: resolveMarket, isLoading: isResolvingMarket } = useContractWrite(contract, "resolveMarket");
-  const { mutateAsync: claimWinnings, isLoading: isClaimingWinnings } = useContractWrite(contract, "claimWinnings");
+  const { mutateAsync: placeBet, isLoading: isPlacingBet } = useContractWrite(
+    contract ? {
+      contract,
+      functionName: "placeBet",
+    } : null
+  );
+  const { mutateAsync: resolveMarket, isLoading: isResolvingMarket } = useContractWrite(
+    contract ? {
+      contract,
+      functionName: "resolveMarket",
+    } : null
+  );
+  const { mutateAsync: claimWinnings, isLoading: isClaimingWinnings } = useContractWrite(
+    contract ? {
+      contract,
+      functionName: "claimWinnings",
+    } : null
+  );
 
   if (isMarketLoading) return <div className="text-center py-8">Loading market details...</div>;
   if (marketError) return <div className="text-center py-8 text-red-500">Error loading market: {marketError.message}</div>;
@@ -58,7 +78,7 @@ import { ethers } from 'ethers';
     }
     try {
       await placeBet({
-        args: [marketId, selectedOutcomeIndex],
+        args: [String(marketId), String(selectedOutcomeIndex)],
         overrides: {
           value: ethers.utils.parseEther(betAmount),
         },
@@ -79,7 +99,7 @@ import { ethers } from 'ethers';
       return;
     }
     try {
-      await resolveMarket({ args: [marketId, resolveOutcomeIndex] });
+      await resolveMarket({ args: [String(marketId), String(resolveOutcomeIndex)] });
       alert('Market resolved successfully!');
       // Invalidate market query to refetch data
       // queryClient.invalidateQueries(['market', marketId]);
@@ -92,7 +112,7 @@ import { ethers } from 'ethers';
   const handleClaimWinnings = async () => {
     if (!market) return;
     try {
-      await claimWinnings({ args: [marketId] });
+      await claimWinnings({ args: [String(marketId)] });
       alert('Winnings claimed successfully!');
       // Invalidate market query to refetch data
       // queryClient.invalidateQueries(['market', marketId]);
