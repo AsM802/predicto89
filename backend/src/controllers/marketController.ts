@@ -23,7 +23,7 @@ export const getMarkets = async (req: Request, res: Response) => {
 };
 
 export const createMarket = async (req: Request, res: Response) => {
-  const { question, category, endTimestamp, outcomes } = req.body;
+  const { question, category, endTimestamp, bettingEndTimestamp, outcomes } = req.body;
 
   try {
     // Assuming you have a way to get the priceFeedAddress, e.g., from an environment variable or a default mock
@@ -46,6 +46,7 @@ export const createMarket = async (req: Request, res: Response) => {
       question,
       category,
       endTimestamp,
+      bettingEndTimestamp,
       outcomes,
       contractAddress,
     });

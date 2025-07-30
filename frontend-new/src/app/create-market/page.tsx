@@ -14,7 +14,8 @@ export default function CreateMarketPage() {
 
   const [question, setQuestion] = useState('');
   const [category, setCategory] = useState('Sports');
-  const [endTimestamp, setEndTimestamp] = useState('');
+  const [marketEndTimestamp, setMarketEndTimestamp] = useState('');
+  const [bettingEndTimestamp, setBettingEndTimestamp] = useState('');
   const [outcomes, setOutcomes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +44,13 @@ export default function CreateMarketPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ question, category, endTimestamp: new Date(endTimestamp).toISOString(), outcomes: outcomes.split(',').map(o => o.trim()) }),
+        body: JSON.stringify({
+          question,
+          category,
+          endTimestamp: Math.floor(new Date(marketEndTimestamp).getTime() / 1000), // Market End Date as Unix timestamp in seconds
+          bettingEndTimestamp: Math.floor(new Date(bettingEndTimestamp).getTime() / 1000), // Betting End Date as Unix timestamp in seconds
+          outcomes: outcomes.split(',').map(o => o.trim()),
+        }),
       });
 
       const data = await response.json();
@@ -52,7 +59,9 @@ export default function CreateMarketPage() {
         setSuccess('Market created successfully!');
         setQuestion('');
         setCategory('Sports');
-        setEndTimestamp('');
+        setMarketEndTimestamp('');
+        setBettingEndTimestamp('');
+        setOutcomes('');
         // Optionally redirect to the new market or markets page
         router.push('/markets');
       } else {
@@ -105,12 +114,23 @@ export default function CreateMarketPage() {
         </div>
 
         <div>
-          <Label htmlFor="endTimestamp">End Date</Label>
+          <Label htmlFor="bettingEndTimestamp">Betting End Date</Label>
           <Input
-            id="endTimestamp"
+            id="bettingEndTimestamp"
             type="datetime-local"
-            value={endTimestamp}
-            onChange={(e) => setEndTimestamp(e.target.value)}
+            value={bettingEndTimestamp}
+            onChange={(e) => setBettingEndTimestamp(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="marketEndTimestamp">Market End Date</Label>
+          <Input
+            id="marketEndTimestamp"
+            type="datetime-local"
+            value={marketEndTimestamp}
+            onChange={(e) => setMarketEndTimestamp(e.target.value)}
             required
           />
         </div>
